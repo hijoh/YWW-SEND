@@ -33,6 +33,8 @@
 #include "esp_log.h"
 
 #define TAG "ESP32S3"
+typedef void (*GuiTaskFunction)(void *arg);
+GuiTaskFunction guiTaskPtr = gui_task;
 
 static void SPIFFS_Directory(char *path)
 {
@@ -51,70 +53,11 @@ extern char *Font_buff;
 
 void app_main(void)
 {
-    gpio_pad_select_gpio(GPIO_NUM_2);
-    gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_2, 1);
+    // gpio_pad_select_gpio(GPIO_NUM_2);
+    // gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
+    // gpio_set_level(GPIO_NUM_2, 1);
 
-    xTaskCreatePinnedToCore(gui_task, "gui task", 1024 * 4, NULL, 15, NULL, 1);
-
-    // /*初始化spiffs用于存放字体文件或者图片文件或者网页文件*/
-    // ESP_LOGI(TAG, "Initializing SPIFFS");
-    // esp_vfs_spiffs_conf_t conf = {
-    //     .base_path = "/spiffs",
-    //     .partition_label = "storage",
-    //     .max_files = 20,
-    //     .format_if_mount_failed = false};
-    // esp_err_t ret = esp_vfs_spiffs_register(&conf);
-    // if (ret != ESP_OK)
-    // {
-    //     if (ret == ESP_FAIL)
-    //         ESP_LOGE(TAG, "Failed to mount or format filesystem");
-    //     else if (ret == ESP_ERR_NOT_FOUND)
-    //         ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-    //     else
-    //         ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
-    //     return;
-    // }
-    // /*显示spiffs里的文件列表*/
-    // SPIFFS_Directory("/spiffs/");
-
-    // // Initialize NVS
-    // esp_err_t ret = nvs_flash_init();
-    // if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    // {
-    //     ESP_ERROR_CHECK(nvs_flash_erase());
-    //     ret = nvs_flash_init();
-    // }
-    // ESP_ERROR_CHECK(ret);
-
-    //     ESP_LOGI(TAG, "Initializing SPIFFS");
-    // esp_vfs_spiffs_conf_t conf = {
-    //     .base_path = "/spiffs",
-    //     .partition_label = "storage",
-    //     .max_files = 20,
-    //     .format_if_mount_failed = false};
-    // esp_err_t ret = esp_vfs_spiffs_register(&conf);
-    // if (ret != ESP_OK)
-    // {
-    //     if (ret == ESP_FAIL)
-    //         ESP_LOGE(TAG, "Failed to mount or format filesystem");
-    //     else if (ret == ESP_ERR_NOT_FOUND)
-    //         ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-    //     else
-    //         ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
-    //     return;
-    // }
-    // /*显示spiffs里的文件列表*/
-    // SPIFFS_Directory("/spiffs/");
-
-    // // 初始化nvs用于存放wifi或者其他需要掉电保存的东西
-    // ret = nvs_flash_init();
-    // if (ret == ESP_ERR_NVS_NO_FREE_PAGES)
-    // {
-    //     ESP_ERROR_CHECK(nvs_flash_erase());
-    //     ret = nvs_flash_init();
-    // }
-    // ESP_ERROR_CHECK(ret);
+    xTaskCreatePinnedToCore(guiTaskPtr, "gui task", 1024 * 4, NULL, 15, NULL, 1);
 
     ESP_LOGI(TAG, "Initializing SPIFFS");
     esp_vfs_spiffs_conf_t conf = {
